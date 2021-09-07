@@ -1,8 +1,12 @@
 import numpy as np
 
 
-def kf_predict(xest, Cest, M, Q):
-    return M.dot(xest), M.dot(Cest.dot(M.T)) + Q
+def kf_predict(xest, Cest, M, Q, u=None):
+
+    xp = M.dot(xest) if u is None else M.dot(xest) + u
+    Cp = M.dot(Cest.dot(M.T)) + Q
+
+    return xp, Cp
 
 
 def kf_update(y, xp, Cp, K, R):
@@ -15,23 +19,29 @@ def kf_update(y, xp, Cp, K, R):
     return xest, Cest
 
 
-def run_filter(y, x0, Cest0, M, K, Q, R):
-
-    # TODO: ensure everything is a list of np.arrays
+def run_filter(y, x0, Cest0, M, K, Q, R, u=None):
 
     xest = x0
     Cest = Cest0
     nobs = len(y)
 
-    xp_all = nobs*[None]
-    Cp_all = nobs*[None]
-    xest_all = nobs*[None]
-    Cest_all = nobs*[None]
+    # transform inputs into lists of np.arrays (unless they already are)
+    Mlist = M if type(M) == list else nobs * [M]
+    Klist = K if type(M) == list else nobs * [M]
+    Qlist = Q if type(M) == list else nobs * [M]
+    Rlist = R if type(M) == list else nobs * [M]
+    ulist = u if type(u) == list else nobs * [u]
+
+    # space for saving end results
+    xp_all, Cp_all, xest_all, Cest_all = nobs * [None]
+    Cp_all = nobs * [None]
+    xest_all = nobs * [None]
+    Cest_all = nobs * [None]
 
     for i in range(nobs):
 
-        xp, Cp = kf_predict(xest, Cest, M[i], Q[i])
-        xest, Cest = kf_update(y[i], xp, Cp, K[i], R[i])
+        xp, Cp = kf_predict(xest, Cest, Mlist[i], Qlist[i], u=ulist[i])
+        xest, Cest = kf_update(y[i], xp, Cp, Klist[i], Rlist[i])
 
         xp_all[i] = xp
         Cp_all[i] = Cp

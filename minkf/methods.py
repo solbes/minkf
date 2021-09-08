@@ -58,3 +58,32 @@ def run_filter(y, x0, Cest0, M, K, Q, R, u=None):
     }
 
     return results
+
+
+def run_smoother(y, x0, Cest0, M, K, Q, R, u=None):
+
+    # run the filter first
+    kf_res = run_filter(y, x0, Cest0, M, K, Q, R, u=None)
+    xest = kf_res['x']
+    Cest = kf_res['C']
+    xp = kf_res['xp']
+    Cp = kf_res['Cp']
+
+    nobs = len(y)
+    xs = nobs * [None]
+    Cs = nobs * [None]
+    xs[-1] = xest[-1]
+    Cs[-1] = Cest[-1]
+
+    # backward recursion
+    for i in range(nobs-2, -1, -1):
+        G = np.linalg.solve(Cp[i+1].T, Cest[i].dot(M.T).T).T
+        xs[i] = xest[i] + G.dot(xs[i+1] - xp[i+1])
+        Cs[i] = Cest[i] + G.dot(Cs[i+1] - Cp[i+1]).dot(G.T)
+
+    results = {
+        'x': xs,
+        'C': Cs
+    }
+
+    return results

@@ -2,6 +2,21 @@ import numpy as np
 
 
 def kf_predict(xest, Cest, M, Q, u=None):
+    """
+    Prediction step of the Kalman filter, xp = M*xest + u + Q.
+
+    Parameters
+    ----------
+    xest: np.array of length n, posterior estimate for the current time
+    Cest: np.array of shape (n, n), posterior covariance for the current step
+    M: np.array of shape (n, n), dynamics model matrix
+    Q: np.array of shape (n, n), model error covariance matrix
+    u: np.array of length n, optional control input
+
+    Returns
+    -------
+    xp, Cp: predicted mean and covariance
+    """
 
     xp = M.dot(xest) if u is None else M.dot(xest) + u
     Cp = M.dot(Cest.dot(M.T)) + Q
@@ -10,6 +25,21 @@ def kf_predict(xest, Cest, M, Q, u=None):
 
 
 def kf_update(y, xp, Cp, K, R):
+    """
+    Update step of the Kalman filter
+
+    Parameters
+    ----------
+    y: np.array of length m, observation vector
+    xp: np.array of length n, predicted (prior) mean
+    Cp: np.array of shape (n, n), predicted (prior) covariance
+    K: np.array of shape (m, n), observation model matrix
+    R: np.array of shape (m, m), observation error covariance
+
+    Returns
+    -------
+    xest, Cest: estimated mean and covariance
+    """
 
     CpKT = Cp.dot(K.T)
     obs_precision = K.dot(CpKT) + R

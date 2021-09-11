@@ -44,7 +44,7 @@ def kf_update(y, xp, Cp, K, R):
 
     CpKT = Cp.dot(K.T)
     obs_precision = K.dot(CpKT) + R
-    G = np.linalg.solve(obs_precision.T, CpKT.T).T
+    G = utils.rsolve(obs_precision, CpKT)
 
     xest = xp + G.dot(y-K.dot(xp))
     Cest = Cp - G.dot(CpKT.T)
@@ -115,7 +115,7 @@ def run_smoother(y, x0, Cest0, M, K, Q, R, u=None):
 
     # backward recursion
     for i in range(nobs-2, -1, -1):
-        G = np.linalg.solve(Cp[i+1].T, Cest[i].dot(M.T).T).T
+        G = utils.rsolve(Cp[i+1], Cest[i].dot(M.T))
         xs[i] = xest[i] + G.dot(xs[i+1] - xp[i+1])
         Cs[i] = Cest[i] + G.dot(Cs[i+1] - Cp[i+1]).dot(G.T)
 

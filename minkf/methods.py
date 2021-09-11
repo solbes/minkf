@@ -1,3 +1,4 @@
+import numpy as np
 from minkf import utils
 
 
@@ -170,3 +171,52 @@ def run_smoother(y, x0, Cest0, M, K, Q, R, u=None):
     }
 
     return results
+
+
+def sample(res_kf, M, Q, u=None, nsamples=1):
+    """
+    Sample from the posterior of the states given the observations.
+
+    Parameters
+    ----------
+    res_kf: results dict from the Kalman filter run
+    M: np.array or list of np.arrays of shape (n, n), dynamics model matrices
+    Q: np.array or list of np.arrays of shape (n, n), model error covariances
+    u: list of np.arrays of length n, optional control inputs
+    nsamples: int, number of samples generated
+
+    Returns
+    -------
+    list of state samples
+    """
+
+    nobs = len(res_kf['x'])
+    ns = len(res_kf['x'][0])
+
+    Mlist = M if type(M) == list else nobs * [M]
+    Qlist = Q if type(M) == list else nobs * [Q]
+    uList = u if u is not None else nobs * [np.zeros(ns)]
+
+    MP_k = [M*P for M, P in zip(Mlist, res_kf['C'])]
+    MtQinv = [utils.rsolve(Q, M.T) for M, Q in zip(Mlist, Qlist)]
+    Sig_k = [P - MP.T.dot(np.linalg.solve(MP.dot(M.T) + Q, MP))
+             for P, MP, Q in zip(res_kf['C'], MP_k, Qlist)]
+
+    def sample_one():
+
+        xsample = np.zeros((nobs, ns))
+        xsample[-1] = np.random.multivariate_normal(
+            res_kf['x'][-1], res_kf['C'][-1]
+        )
+
+        for i in reversed(range(nobs-1)):
+            mu_i = Sig_k[i].dot(
+                MtQinv[i].dot(
+                    xsample[i+1, :]-uList[i]
+                ) + np.linalg.solve(res_kf['C'][i], res_kf['x'][i])
+            )
+            xsample[i] = np.random.multivariate_normal(mu_i, Sig_k[i])
+
+        return np.squeeze(xsample)
+
+    return [sample_one() for i in range(nsamples)]

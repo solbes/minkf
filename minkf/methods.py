@@ -1,4 +1,3 @@
-import numpy as np
 from minkf import utils
 
 
@@ -53,6 +52,31 @@ def kf_update(y, xp, Cp, K, R):
 
 
 def run_filter(y, x0, Cest0, M, K, Q, R, u=None, likelihood=False):
+    """
+    Run the Kalman filter.
+
+    Parameters
+    ----------
+    y: list of np.arrays of length m, observation vectors
+    x0: np.array of length n, initial state
+    Cest0: np.array of shape (n, n), initial covariance
+    M: np.array or list of np.arrays of shape (n, n), dynamics model matrices
+    K: np.array or list of np.arrays of shape (m, n), observation model matrices
+    Q: np.array or list of np.arrays of shape (n, n), model error covariances
+    R: np.array or list of np.arrays of shape (m, m), obs error covariances
+    u: list of np.arrays of length n, optional control inputs
+    likelihood: bool, calculate likelihood along with the filtering
+
+    Returns
+    -------
+    results dict = {
+        'x': estimated states
+        'C': covariances for the estimated states
+        'loglike': log-likelihood of the data if calculated, None otherwise
+        'xp': predicted means (helper variables for further calculations)
+        'Cp': predicted covariances (helpers for further calculations)
+    }
+    """
 
     xest = x0
     Cest = Cest0
@@ -63,7 +87,6 @@ def run_filter(y, x0, Cest0, M, K, Q, R, u=None, likelihood=False):
     Klist = K if type(M) == list else nobs * [K]
     Qlist = Q if type(M) == list else nobs * [Q]
     Rlist = R if type(M) == list else nobs * [R]
-    ulist = u if type(u) == list else nobs * [u]
 
     # space for saving end results
     xp_all = nobs * [None]
@@ -74,7 +97,7 @@ def run_filter(y, x0, Cest0, M, K, Q, R, u=None, likelihood=False):
     loglike = 0 if likelihood else None
     for i in range(nobs):
 
-        xp, Cp = kf_predict(xest, Cest, Mlist[i], Qlist[i], u=ulist[i])
+        xp, Cp = kf_predict(xest, Cest, Mlist[i], Qlist[i], u=u[i])
         xest, Cest = kf_update(y[i], xp, Cp, Klist[i], Rlist[i])
 
         xp_all[i] = xp
@@ -99,9 +122,30 @@ def run_filter(y, x0, Cest0, M, K, Q, R, u=None, likelihood=False):
 
 
 def run_smoother(y, x0, Cest0, M, K, Q, R, u=None):
+    """
+    Run the Kalman smoother.
+
+    Parameters
+    ----------
+    y: list of np.arrays of length m, observation vectors
+    x0: np.array of length n, initial state
+    Cest0: np.array of shape (n, n), initial covariance
+    M: np.array or list of np.arrays of shape (n, n), dynamics model matrices
+    K: np.array or list of np.arrays of shape (m, n), observation model matrices
+    Q: np.array or list of np.arrays of shape (n, n), model error covariances
+    R: np.array or list of np.arrays of shape (m, m), obs error covariances
+    u: list of np.arrays of length n, optional control inputs
+
+    Returns
+    -------
+    results dict = {
+        'x': smoothed states
+        'C': covariances for the smoothed states
+    }
+    """
 
     # run the filter first
-    kf_res = run_filter(y, x0, Cest0, M, K, Q, R, u=None)
+    kf_res = run_filter(y, x0, Cest0, M, K, Q, R, u=u)
     xest = kf_res['x']
     Cest = kf_res['C']
     xp = kf_res['xp']

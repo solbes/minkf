@@ -1,4 +1,4 @@
-# minkf
+# minkf - Minimal Kalman Filter
 Kalman filter/smoother, nothing more. A minimal implementation with only `numpy` dependency. No fancy classes, just simple functions.
 
 Estimates the states of the system

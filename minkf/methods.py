@@ -87,6 +87,7 @@ def run_filter(y, x0, Cest0, M, K, Q, R, u=None, likelihood=False):
     Klist = K if type(M) == list else nobs * [K]
     Qlist = Q if type(M) == list else nobs * [Q]
     Rlist = R if type(M) == list else nobs * [R]
+    uList = u if type(M) == list else nobs * [u]
 
     # space for saving end results
     xp_all = nobs * [None]
@@ -97,7 +98,7 @@ def run_filter(y, x0, Cest0, M, K, Q, R, u=None, likelihood=False):
     loglike = 0 if likelihood else None
     for i in range(nobs):
 
-        xp, Cp = kf_predict(xest, Cest, Mlist[i], Qlist[i], u=u[i])
+        xp, Cp = kf_predict(xest, Cest, Mlist[i], Qlist[i], u=uList[i])
         xest, Cest = kf_update(y[i], xp, Cp, Klist[i], Rlist[i])
 
         xp_all[i] = xp

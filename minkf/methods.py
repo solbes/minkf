@@ -197,7 +197,7 @@ def sample(res_kf, M, Q, u=None, nsamples=1):
     Qlist = Q if type(M) == list else nobs * [Q]
     uList = u if u is not None else nobs * [np.zeros(ns)]
 
-    MP_k = [M*P for M, P in zip(Mlist, res_kf['C'])]
+    MP_k = [M.dot(P) for M, P in zip(Mlist, res_kf['C'])]
     MtQinv = [utils.rsolve(Q, M.T) for M, Q in zip(Mlist, Qlist)]
     Sig_k = [P - MP.T.dot(np.linalg.solve(MP.dot(M.T) + Q, MP))
              for P, MP, Q in zip(res_kf['C'], MP_k, Qlist)]

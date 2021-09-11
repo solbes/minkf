@@ -1,4 +1,5 @@
 import numpy as np
+from minkf import utils
 
 
 def kf_predict(xest, Cest, M, Q, u=None):
@@ -51,7 +52,7 @@ def kf_update(y, xp, Cp, K, R):
     return xest, Cest
 
 
-def run_filter(y, x0, Cest0, M, K, Q, R, u=None):
+def run_filter(y, x0, Cest0, M, K, Q, R, u=None, likelihood=False):
 
     xest = x0
     Cest = Cest0
@@ -70,6 +71,7 @@ def run_filter(y, x0, Cest0, M, K, Q, R, u=None):
     xest_all = nobs * [None]
     Cest_all = nobs * [None]
 
+    loglike = 0 if likelihood else None
     for i in range(nobs):
 
         xp, Cp = kf_predict(xest, Cest, Mlist[i], Qlist[i], u=ulist[i])
@@ -80,11 +82,17 @@ def run_filter(y, x0, Cest0, M, K, Q, R, u=None):
         xest_all[i] = xest
         Cest_all[i] = Cest
 
+        if likelihood:
+            yp = K.dot(xp)
+            Cyp = K.dot(Cp).dot(K.T) + R
+            loglike += utils.normal_log_pdf(y[i], yp, Cyp)
+
     results = {
         'xp': xp_all,
         'Cp': Cp_all,
         'x': xest_all,
         'C': Cest_all,
+        'loglike': loglike
     }
 
     return results

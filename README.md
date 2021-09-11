@@ -11,6 +11,8 @@ Calculates also the likelihood of the data, in case one wants to do some hyperpa
 
 The examples do some plots via `matplotlib`, which is not listed as a dependency in order to keep them minimal. Thus, install `matplotlib` on top of `minkf` to get the plots working.
 
+These examples are about fitting an existing batch of data. For on-line Kalman filtering, check the `minkf.kf_predict` and `minkf.kf_update` functions in the package.
+
 ### Reconstructing random 1d data
 
 The first example just generates some 1d random walk data and reconstructs it with Kalman filter/smoother. The forward and observation models are just identities. The user can either give the model and error covariance matrices as lists, which enable using different values for each time step. If the matrices are given as constant numpy arrays, the same matrices are used for every time step.

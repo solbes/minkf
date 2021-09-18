@@ -1,4 +1,4 @@
-# minkf - Minimal Kalman Filter
+# minkf - minimal Kalman filter in Python
 Kalman filter/smoother, nothing more. A minimal implementation with only `numpy` dependency. No fancy classes, just simple functions.
 
 Estimates the states of the system
@@ -7,11 +7,13 @@ Estimates the states of the system
 
 Calculates also the likelihood of the data, in case one wants to do some hyperparameter tuning. One can also sample from the posterior distribution of the states.
 
-## Examples
+## Example
 
-The examples do some plots via `matplotlib`, which is not listed as a dependency in order to keep them minimal. Thus, install `matplotlib` on top of `minkf` to get the plots working.
+The example does some plots via `matplotlib`, which is not listed as a dependency in order to keep them minimal. Thus, install `matplotlib` on top of `minkf` to get the plots working.
 
-These examples are about fitting an existing batch of data. For on-line Kalman filtering, check the `minkf.kf_predict` and `minkf.kf_update` functions in the package.
+The example is about fitting an existing batch of data. For on-line Kalman filtering, check the `minkf.kf_predict` and `minkf.kf_update` functions in the package.
+
+For more examples as `jupyter` notebooks, check the [demos](https://github.com/solbes/minkf/tree/main/demos) folder.
 
 ### Reconstructing random 1d data
 

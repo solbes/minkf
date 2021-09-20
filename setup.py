@@ -9,7 +9,7 @@ setup(
     version='0.0.1',
     packages=['minkf'],
     url='https://github.com/solbes/minkf',
-    #download_url = 'https://github.com/solbes/blinpy/archive/refs/tags/0.1.4.1.tar.gz',
+    download_url='https://github.com/solbes/minkf/archive/refs/tags/0.0.1.zip',
     license='MIT',
     author='Antti Solonen',
     author_email='antti.solonen@gmail.com',

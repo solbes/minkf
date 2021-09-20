@@ -7,6 +7,10 @@ Estimates the states of the system
 
 Calculates also the likelihood of the data, in case one wants to do some hyperparameter tuning. One can also sample from the posterior distribution of the states.
 
+## Installation
+
+`pip install minkf`
+
 ## Example
 
 The example does some plots via `matplotlib`, which is not listed as a dependency in order to keep them minimal. Thus, install `matplotlib` on top of `minkf` to get the plots working.

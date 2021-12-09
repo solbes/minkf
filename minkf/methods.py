@@ -52,7 +52,10 @@ def kf_update(y, xp, Cp, K, R):
     return xest, Cest
 
 
-def run_filter(y, x0, Cest0, M, K, Q, R, u=None, likelihood=False):
+def run_filter(
+        y, x0, Cest0, M, K, Q, R,
+        u=None, likelihood=False, predict_y=False
+):
     """
     Run the Kalman filter.
 
@@ -67,6 +70,7 @@ def run_filter(y, x0, Cest0, M, K, Q, R, u=None, likelihood=False):
     R: np.array or list of np.arrays of shape (m, m), obs error covariances
     u: list of np.arrays of length n, optional control inputs
     likelihood: bool, calculate likelihood along with the filtering
+    predict_y: bool, include predicted observations and covariance
 
     Returns
     -------
@@ -76,6 +80,8 @@ def run_filter(y, x0, Cest0, M, K, Q, R, u=None, likelihood=False):
         'loglike': log-likelihood of the data if calculated, None otherwise
         'xp': predicted means (helper variables for further calculations)
         'Cp': predicted covariances (helpers for further calculations)
+        'yp': observation predicted at the predicted mean state
+        'Cyp': covariance of predicted observation
     }
     """
 
@@ -85,10 +91,10 @@ def run_filter(y, x0, Cest0, M, K, Q, R, u=None, likelihood=False):
 
     # transform inputs into lists of np.arrays (unless they already are)
     Mlist = M if type(M) == list else nobs * [M]
-    Klist = K if type(M) == list else nobs * [K]
-    Qlist = Q if type(M) == list else nobs * [Q]
-    Rlist = R if type(M) == list else nobs * [R]
-    uList = u if type(M) == list else nobs * [u]
+    Klist = K if type(K) == list else nobs * [K]
+    Qlist = Q if type(Q) == list else nobs * [Q]
+    Rlist = R if type(R) == list else nobs * [R]
+    uList = u if type(u) == list else nobs * [u]
 
     # space for saving end results
     xp_all = nobs * [None]
@@ -97,10 +103,14 @@ def run_filter(y, x0, Cest0, M, K, Q, R, u=None, likelihood=False):
     Cest_all = nobs * [None]
 
     loglike = 0 if likelihood else None
+    yp_all = nobs * [None] if predict_y else None
+    Cyp_all = nobs * [None] if predict_y else None
     for i in range(nobs):
 
+        Ki = Klist[i]
+        Ri = Rlist[i]
         xp, Cp = kf_predict(xest, Cest, Mlist[i], Qlist[i], u=uList[i])
-        xest, Cest = kf_update(y[i], xp, Cp, Klist[i], Rlist[i])
+        xest, Cest = kf_update(y[i], xp, Cp, Ki, Ri)
 
         xp_all[i] = xp
         Cp_all[i] = Cp
@@ -108,13 +118,19 @@ def run_filter(y, x0, Cest0, M, K, Q, R, u=None, likelihood=False):
         Cest_all[i] = Cest
 
         if likelihood:
-            yp = K.dot(xp)
-            Cyp = K.dot(Cp).dot(K.T) + R
+            yp = Ki.dot(xp)
+            Cyp = Ki.dot(Cp).dot(Ki.T) + Ri
             loglike += utils.normal_log_pdf(y[i], yp, Cyp)
+            if predict_y:
+                yp_all[i] = yp
+                Cyp_all[i] = Cyp
+
 
     results = {
         'xp': xp_all,
         'Cp': Cp_all,
+        'yp': yp_all,
+        'Cyp': yp_all,
         'x': xest_all,
         'C': Cest_all,
         'loglike': loglike
@@ -159,9 +175,14 @@ def run_smoother(y, x0, Cest0, M, K, Q, R, u=None):
     xs[-1] = xest[-1]
     Cs[-1] = Cest[-1]
 
+    # transform inputs into lists of np.arrays (unless they already are)
+    Mlist = M if type(M) == list else nobs * [M]
+
     # backward recursion
     for i in range(nobs-2, -1, -1):
-        G = utils.rsolve(Cp[i+1], Cest[i].dot(M.T))
+        # REVIEW: Is it correct to take the i+1'th item of Mlist?
+        # I think it is according to the RTS-smoother section in Wikipedia.
+        G = utils.rsolve(Cp[i+1], Cest[i].dot(Mlist[i+1].T))
         xs[i] = xest[i] + G.dot(xs[i+1] - xp[i+1])
         Cs[i] = Cest[i] + G.dot(Cs[i+1] - Cp[i+1]).dot(G.T)
 

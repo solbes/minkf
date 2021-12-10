@@ -180,8 +180,6 @@ def run_smoother(y, x0, Cest0, M, K, Q, R, u=None):
 
     # backward recursion
     for i in range(nobs-2, -1, -1):
-        # REVIEW: Is it correct to take the i+1'th item of Mlist?
-        # I think it is according to the RTS-smoother section in Wikipedia.
         G = utils.rsolve(Cp[i+1], Cest[i].dot(Mlist[i+1].T))
         xs[i] = xest[i] + G.dot(xs[i+1] - xp[i+1])
         Cs[i] = Cest[i] + G.dot(Cs[i+1] - Cp[i+1]).dot(G.T)

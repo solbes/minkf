@@ -101,9 +101,30 @@ def test_filter_and_smoother():
             [ 0.        , 41.70703863]
         ])
     ]
+    exp_yp = [
+        np.array([0., 0.]),
+        np.array([0.13333333, 0.13333333]),
+        np.array([0.06219512, 0.06219512])
+    ]
+    exp_Cyp = [
+        np.array([
+            [3., 0.],
+            [0., 3.]
+        ]),
+        np.array([
+            [0.54666667, 0.        ],
+            [0.        , 0.54666667]
+        ]),
+        np.array([
+            [0.25424146, 0.        ],
+            [0.        , 0.25424146]
+        ])
+    ]
     np.testing.assert_allclose(res['x'], exp_x)
     np.testing.assert_allclose(res['C'], exp_C)
     np.testing.assert_allclose(res['loglike'], 14.444253596157939)
+    np.testing.assert_allclose(res["yp"], exp_yp)
+    np.testing.assert_allclose(res["Cyp"], exp_Cyp)
 
     res_smo = kf.run_smoother(y, x0, Cest0, M, K, Q, R)
     exp_x_smo = [

@@ -130,7 +130,7 @@ def run_filter(
         'xp': xp_all,
         'Cp': Cp_all,
         'yp': yp_all,
-        'Cyp': yp_all,
+        'Cyp': Cyp_all,
         'x': xest_all,
         'C': Cest_all,
         'loglike': loglike

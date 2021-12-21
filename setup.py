@@ -6,7 +6,7 @@ with open(os.path.join(os.path.dirname(__file__), "README.md")) as fh:
 
 setup(
     name='minkf',
-    version='0.0.2',
+    version='0.0.3',
     packages=['minkf'],
     url='https://github.com/solbes/minkf',
     download_url='https://github.com/solbes/minkf/archive/refs/tags/0.0.3.zip',

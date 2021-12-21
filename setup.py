@@ -9,7 +9,7 @@ setup(
     version='0.0.2',
     packages=['minkf'],
     url='https://github.com/solbes/minkf',
-    download_url='https://github.com/solbes/minkf/archive/refs/tags/0.0.2.zip',
+    download_url='https://github.com/solbes/minkf/archive/refs/tags/0.0.3.zip',
     license='MIT',
     author='Antti Solonen',
     author_email='antti.solonen@gmail.com',

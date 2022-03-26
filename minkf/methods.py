@@ -31,7 +31,8 @@ def kf_update(y, xp, Cp, K, R):
 
     Parameters
     ----------
-    y: np.array of length m, observation vector
+    y: np.array of length m, observation vector, if there are any NaNs in the
+    vector, the observation is considered missing
     xp: np.array of length n, predicted (prior) mean
     Cp: np.array of shape (n, n), predicted (prior) covariance
     K: np.array of shape (m, n), observation model matrix

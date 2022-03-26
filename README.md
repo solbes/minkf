@@ -70,3 +70,37 @@ plt.show()
 ```
 
 ![simple_demo_samps](https://user-images.githubusercontent.com/6495497/132949632-d9a18f9e-7140-446c-b6e3-b31726223c32.png)
+
+### Missing observations
+
+If any element of the observation vector is `np.nan`, the observation is considered missing. Below is the above simple example with some missing observations in the middle.
+
+```python
+y_missing = y.copy()
+y_missing[40:60] = np.nan
+
+res_missing = kf.run_filter(y_missing, x0, Cest0, M, K, Q, R, likelihood=True)
+res_smo_missing = kf.run_smoother(y_missing, x0, Cest0, M, K, Q, R)
+
+plt.figure()
+
+plt.plot(y_missing, 'bo', ms=5)
+plt.plot(res_missing['x'], 'k-')
+plt.plot(res_smo_missing['x'], 'r-')
+plt.grid(True)
+plt.show()
+```
+
+![kf_demo_missing](https://user-images.githubusercontent.com/6495497/160231911-60968d72-b788-4147-9ff3-e27e28152e15.png)
+
+```python
+samps_missing = kf.sample(res_missing, M, Q, nsamples=10)
+
+plt.figure()
+plt.plot(np.array(samps_missing).T, 'r-', alpha=0.2)
+plt.plot(y_missing, 'bo', ms=2)
+plt.grid(True)
+plt.show()
+```
+
+![kf_demo_samps_missing](https://user-images.githubusercontent.com/6495497/160231955-3e2db6b9-4372-470e-b4d9-e9fa59bfd4d9.png)

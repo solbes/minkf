@@ -46,8 +46,9 @@ def kf_update(y, xp, Cp, K, R):
     obs_precision = K.dot(CpKT) + R
     G = utils.rsolve(obs_precision, CpKT)
 
-    xest = xp + G.dot(y-K.dot(xp))
-    Cest = Cp - G.dot(CpKT.T)
+    obs_missing = np.any(np.isnan(y))
+    xest = xp + G.dot(y-K.dot(xp)) if not obs_missing else xp
+    Cest = Cp - G.dot(CpKT.T) if not obs_missing else Cp
 
     return xest, Cest
 
@@ -120,7 +121,7 @@ def run_filter(
         if likelihood:
             yp = Ki.dot(xp)
             Cyp = Ki.dot(Cp).dot(Ki.T) + Ri
-            loglike += utils.normal_log_pdf(y[i], yp, Cyp)
+            loglike += utils.normal_log_pdf(y[i], yp, Cyp) if not np.any(np.isnan(y[i])) else 0.0
             if predict_y:
                 yp_all[i] = yp
                 Cyp_all[i] = Cyp

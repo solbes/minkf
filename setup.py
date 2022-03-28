@@ -6,10 +6,10 @@ with open(os.path.join(os.path.dirname(__file__), "README.md")) as fh:
 
 setup(
     name='minkf',
-    version='0.0.3',
+    version='0.0.4',
     packages=['minkf'],
     url='https://github.com/solbes/minkf',
-    download_url='https://github.com/solbes/minkf/archive/refs/tags/0.0.3.zip',
+    download_url='https://github.com/solbes/minkf/archive/refs/tags/0.0.4.zip',
     license='MIT',
     author='Antti Solonen',
     author_email='antti.solonen@gmail.com',

@@ -49,7 +49,8 @@ def kf_update(y, xp, Cp, K, R):
 
     obs_missing = np.any(np.isnan(y))
     xest = xp + G.dot(y-K.dot(xp)) if not obs_missing else xp
-    Cest = Cp - G.dot(CpKT.T) if not obs_missing else Cp
+    I_GK = np.eye(Cp.shape[0])-G.dot(K)
+    Cest = I_GK.dot(Cp) if not obs_missing else Cp
 
     return xest, Cest
 
